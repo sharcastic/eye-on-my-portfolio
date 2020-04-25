@@ -1,0 +1,2 @@
+export const ALPHAVANTAGE_API_KEY = process.env.REACT_APP_ALPHAVANTAGE_KEY;
+export const DEBOUNCE_WAIT = 500;

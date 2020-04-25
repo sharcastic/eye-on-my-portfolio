@@ -1,0 +1,28 @@
+@import "./normalize.scss";
+
+@font-face {
+  font-family: "LexendDeca";
+  src: url("../assets/fonts/Lexend_Deca/LexendDeca-Regular.ttf")
+    format("truetype");
+}
+
+@font-face {
+  font-family: "LexendGiga";
+  src: url("../assets/fonts/Lexend_Giga/LexendGiga-Regular.ttf")
+    format("truetype");
+}
+
+body {
+  padding: 0 20px;
+  margin: 0;
+  font-family: "LexendDeca", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+    "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}

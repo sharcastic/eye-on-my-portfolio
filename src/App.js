@@ -18,8 +18,11 @@ function App() {
       console.log(symbol);
       setDataLoading(true);
       const details = await getStockDetails(symbol);
-      setStockDetails(details);
-      setDataLoading(false);
+      if (!details.error) {
+        setStockDetails(details);
+        setDataLoading(false);
+      }
+      // ERROR CASE!
     };
     if (selectedStock.name) {
       retrieveDetails(selectedStock.symbol);

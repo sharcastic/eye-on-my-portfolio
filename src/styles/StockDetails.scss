@@ -29,17 +29,25 @@
   &__info {
     margin-top: 40px;
     display: flex;
-    justify-content: space-around;
+    flex-direction: column;
     &__currentPrice {
       display: flex;
       align-items: baseline;
+      justify-content: space-evenly;
+      width: 100%;
+      @media screen and (orientation: landscape) {
+        justify-content: center;
+      }
       &__text {
         font-size: 30px;
-        margin-right: 25px;
+        @media screen and (orientation: landscape) {
+          margin-right: 25px;
+        }
       }
       &__price {
         font-size: 30px;
         padding: 10px 20px;
+
         &.down {
           background-color: $opaqueRed;
           color: $red;
@@ -51,9 +59,11 @@
       }
       &__change {
         font-size: 20px;
-        padding-left: 30px;
         position: relative;
         display: flex;
+        @media screen and (orientation: landscape) {
+          padding-left: 30px;
+        }
         .down-arrow {
           border-left: 1rem solid transparent;
           border-right: 1rem solid transparent;
@@ -70,7 +80,42 @@
         }
       }
       &__percentChange {
+        @media screen and (orientation: landscape) {
+          margin-left: 20px;
+        }
+      }
+    }
+    &__year-peaks {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      span {
+        align-self: center;
+      }
+      &__high,
+      &__low {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 20px;
+        &__text {
+          margin-top: 5px;
+          font-size: 13px;
+        }
+      }
+      &__high {
         margin-left: 20px;
+        border-bottom: 1px solid $green;
+        /* &__text {
+          background-color: $opaqueGreen;
+        } */
+      }
+      &__low {
+        margin-right: 20px;
+        border-bottom: 1px solid $red;
+        /* &__text {
+          background-color: $opaqueRed;
+        } */
       }
     }
   }

@@ -1,0 +1,77 @@
+@import "../../node_modules/react-loader-spinner/dist/loader/css/react-spinner-loader.css";
+@import "variables.scss";
+
+.details {
+  margin-top: 50px;
+  .down {
+    color: $red;
+  }
+  .up {
+    color: $green;
+  }
+  .loader {
+    margin-top: 50px;
+    display: flex;
+    justify-content: center;
+  }
+  &__header {
+    display: flex;
+    justify-content: space-around;
+    .stock-name {
+      font-family: "Girassol";
+      font-size: 40px;
+    }
+    .stock-symbol {
+      margin-left: 10px;
+      color: $color-2;
+    }
+  }
+  &__info {
+    margin-top: 40px;
+    display: flex;
+    justify-content: space-around;
+    &__currentPrice {
+      display: flex;
+      align-items: baseline;
+      &__text {
+        font-size: 30px;
+        margin-right: 25px;
+      }
+      &__price {
+        font-size: 30px;
+        padding: 10px 20px;
+        &.down {
+          background-color: $opaqueRed;
+          color: $red;
+        }
+        &.up {
+          background-color: $opaqueGreen;
+          color: $green;
+        }
+      }
+      &__change {
+        font-size: 20px;
+        padding-left: 30px;
+        position: relative;
+        display: flex;
+        .down-arrow {
+          border-left: 1rem solid transparent;
+          border-right: 1rem solid transparent;
+          margin-bottom: 4px;
+          border-bottom: 1rem solid $red;
+          margin-right: 5px;
+        }
+        .up-arrow {
+          border-left: 1rem solid transparent;
+          border-right: 1rem solid transparent;
+          margin-bottom: 4px;
+          border-bottom: 1rem solid $green;
+          margin-right: 5px;
+        }
+      }
+      &__percentChange {
+        margin-left: 20px;
+      }
+    }
+  }
+}

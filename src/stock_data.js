@@ -1,6 +1,8 @@
+import { TWELVEDATA_URL } from "./constants";
+
 let stockData = localStorage.getItem("stockData");
 if (!stockData) {
-  fetch("https://api.twelvedata.com/stocks").then(async res => {
+  fetch(`${TWELVEDATA_URL}/stocks`).then(async res => {
     const { data } = await res.json();
     stockData = data
       .filter(

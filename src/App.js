@@ -1,14 +1,30 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import AsyncSelect from "react-select/async";
 import debounce from "debounce-promise";
 
+import { getStockDetails } from "./util/network";
 import { DEBOUNCE_WAIT } from "./constants";
+import stockData from "./stock_data";
+import StockDetailsComponent from "./Components/StockDetails";
 
 import "./styles/App.scss";
-import stockData from "./stock_data";
 
 function App() {
   const [selectedStock, setSelectedStock] = useState({});
+  const [stockDataLoading, setDataLoading] = useState(false);
+  const [selectedStockDetails, setStockDetails] = useState({});
+  useEffect(() => {
+    const retrieveDetails = async symbol => {
+      console.log(symbol);
+      setDataLoading(true);
+      const details = await getStockDetails(symbol);
+      setStockDetails(details);
+      setDataLoading(false);
+    };
+    if (selectedStock.name) {
+      retrieveDetails(selectedStock.symbol);
+    }
+  }, [selectedStock]);
   const promiseOptions = async inputValue => {
     return filterStocks(inputValue);
   };
@@ -32,25 +48,24 @@ function App() {
     <div className="App">
       <header>
         <div className="header-left">
-          <span>STOCK</span>
-          <span>PORTFOLIO</span>
+          <h1>STOCK</h1>
+          <h1>PORTFOLIO</h1>
         </div>
       </header>
       <main>
-        <div>Portfolio app or whatever this is!</div>
         <AsyncSelect
           cacheOptions
           loadOptions={loadOptions}
           onChange={onSelectChange}
           formatOptionLabel={option => `${option.symbol} - ${option.name}`}
+          placeholder="Select a stock"
         />
-        <div>
-          {selectedStock.name && (
-            <div>
-              {selectedStock.name} - {selectedStock.exchange}
-            </div>
-          )}
-        </div>
+        <StockDetailsComponent
+          details={selectedStockDetails}
+          loading={stockDataLoading}
+          name={selectedStock.name}
+          symbol={selectedStock.symbol}
+        />
       </main>
     </div>
   );

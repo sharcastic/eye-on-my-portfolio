@@ -3,6 +3,13 @@
 
 .details {
   margin-top: 50px;
+  .chart {
+    height: 300px;
+    margin-top: 30px;
+    @media screen and (orientation: landscape) {
+      height: 400px;
+    }
+  }
   .down {
     color: $red;
   }
@@ -101,6 +108,7 @@
         &__text {
           margin-top: 5px;
           font-size: 13px;
+          cursor: pointer;
         }
       }
       &__high {

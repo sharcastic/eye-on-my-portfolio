@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import AsyncSelect from "react-select/async";
 import debounce from "debounce-promise";
 
-import { getStockDetails } from "./util/network";
+import { getStockDetailsAndChart } from "./util/network";
 import { DEBOUNCE_WAIT } from "./constants";
 import stockData from "./stock_data";
 import StockDetailsComponent from "./Components/StockDetails";
@@ -12,14 +12,16 @@ import "./styles/App.scss";
 function App() {
   const [selectedStock, setSelectedStock] = useState({});
   const [stockDataLoading, setDataLoading] = useState(false);
+  const [stockChartData, setChartData] = useState([]);
   const [selectedStockDetails, setStockDetails] = useState({});
   useEffect(() => {
     const retrieveDetails = async symbol => {
-      console.log(symbol);
       setDataLoading(true);
-      const details = await getStockDetails(symbol);
-      if (!details.error) {
-        setStockDetails(details);
+      const data = await getStockDetailsAndChart(symbol);
+      console.log(data);
+      if (!data.error) {
+        setStockDetails(data.details);
+        setChartData(data.chartData.map(i => ({ x: i.datetime, y: i.close })));
         setDataLoading(false);
       }
       // ERROR CASE!
@@ -68,6 +70,7 @@ function App() {
           loading={stockDataLoading}
           name={selectedStock.name}
           symbol={selectedStock.symbol}
+          stockChartData={stockChartData}
         />
       </main>
     </div>

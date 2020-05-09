@@ -14,6 +14,7 @@ function App() {
   const [stockDataLoading, setDataLoading] = useState(false);
   const [stockChartData, setChartData] = useState([]);
   const [selectedStockDetails, setStockDetails] = useState({});
+  useEffect(() => {}, []);
   useEffect(() => {
     const retrieveDetails = async symbol => {
       setDataLoading(true);

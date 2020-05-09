@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import Loader from "react-loader-spinner";
 import clsx from "clsx";
 import ReactTooltip from "react-tooltip";
 import { ResponsiveLineCanvas } from "@nivo/line";
+import { useToasts } from "react-toast-notifications";
 
+import Modal from "./Modal";
 import "../styles/StockDetails.scss";
 
 const StockDetails = ({ name, symbol, details, loading, stockChartData }) => {
@@ -13,9 +15,30 @@ const StockDetails = ({ name, symbol, details, loading, stockChartData }) => {
     percent_change,
     fifty_two_week: { low, high, low_change_percent, high_change_percent } = {}
   } = details;
+  const [showPopup, setShowPopup] = useState(false);
+  const [quantity, setQuantity] = useState();
+  const [confirmPrice, setConfirmPrice] = useState();
+  const { addToast } = useToasts();
+
   if (!name) {
     return null;
   }
+  const onInputChange = field => ({ target: value }) => {
+    if (!!parseInt(value, 10)) {
+      if (field === "quantity") {
+        setQuantity(value);
+      } else {
+        setConfirmPrice(value);
+      }
+    }
+  };
+  const closePopup = () => setShowPopup(false);
+  const onConfirmClick = () => {
+    addToast(`Added ${symbol} to your Portfolio!`, { appearance: "success" });
+    setQuantity();
+    setConfirmPrice();
+    closePopup();
+  };
   const price = parseFloat(close).toFixed(2);
   const displayChange = parseFloat(change).toFixed(2);
   const displayPercent = parseFloat(percent_change).toFixed(2);
@@ -154,6 +177,38 @@ const StockDetails = ({ name, symbol, details, loading, stockChartData }) => {
               )}
             />
           </div>
+          <div className="button-section">
+            <button className="add" onClick={() => setShowPopup(true)}>
+              Add to Portfolio!
+            </button>
+            <button className="view">View Portfolio!</button>
+          </div>
+          <Modal onCloseClick={closePopup} show={showPopup}>
+            <h4>Add to your Portfolio!</h4>
+            <div className="form">
+              <div>
+                <label for="quantity">Quantity</label>
+                <input
+                  name="quantity"
+                  value={quantity}
+                  onChange={onInputChange("quantity")}
+                  placeholder={1}
+                />
+              </div>
+              <div>
+                <label for="price">Buy Price</label>
+                <input
+                  name="price"
+                  placeholder={price}
+                  value={confirmPrice}
+                  onChange={onInputChange("price")}
+                />
+              </div>
+              <button className="confirm" onClick={onConfirmClick}>
+                Add Stock!
+              </button>
+            </div>
+          </Modal>
         </div>
       ) : (
         <Loader

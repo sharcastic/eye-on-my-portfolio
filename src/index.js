@@ -1,12 +1,15 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import { ToastProvider } from "react-toast-notifications";
 import "./styles/index.scss";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <ToastProvider autoDismiss autoDismissTimeout={3000}>
+      <App />
+    </ToastProvider>
   </React.StrictMode>,
   document.getElementById("root")
 );

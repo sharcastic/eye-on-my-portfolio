@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Loader from "react-loader-spinner";
 import clsx from "clsx";
 import ReactTooltip from "react-tooltip";
-import { ResponsiveLineCanvas } from "@nivo/line";
 import { useToasts } from "react-toast-notifications";
+import { navigate } from "@reach/router";
 
+import Button from "./Button";
+import BasicStockChart from "./Charts/BasicStockChart";
+import ApplicationContext from "../context/ApplicationContext";
 import Modal from "./Modal";
 import "../styles/StockDetails.scss";
 
@@ -16,29 +19,14 @@ const StockDetails = ({ name, symbol, details, loading, stockChartData }) => {
     fifty_two_week: { low, high, low_change_percent, high_change_percent } = {}
   } = details;
   const [showPopup, setShowPopup] = useState(false);
-  const [quantity, setQuantity] = useState();
-  const [confirmPrice, setConfirmPrice] = useState();
+  const [quantity, setQuantity] = useState("");
+  const [confirmPrice, setConfirmPrice] = useState("");
   const { addToast } = useToasts();
+  const { dispatch } = useContext(ApplicationContext);
 
   if (!name) {
     return null;
   }
-  const onInputChange = field => ({ target: value }) => {
-    if (!!parseInt(value, 10)) {
-      if (field === "quantity") {
-        setQuantity(value);
-      } else {
-        setConfirmPrice(value);
-      }
-    }
-  };
-  const closePopup = () => setShowPopup(false);
-  const onConfirmClick = () => {
-    addToast(`Added ${symbol} to your Portfolio!`, { appearance: "success" });
-    setQuantity();
-    setConfirmPrice();
-    closePopup();
-  };
   const price = parseFloat(close).toFixed(2);
   const displayChange = parseFloat(change).toFixed(2);
   const displayPercent = parseFloat(percent_change).toFixed(2);
@@ -47,6 +35,43 @@ const StockDetails = ({ name, symbol, details, loading, stockChartData }) => {
   const yearLowPercent = parseFloat(low_change_percent).toFixed(2);
   const yearHighPercent = parseFloat(high_change_percent).toFixed(2);
   const indicatingClass = change < 0 ? "down" : "up";
+
+  const onInputChange = field => ({ target: { value } }) => {
+    if (field === "quantity") {
+      if (/^\d+$/.test(value)) {
+        setQuantity(parseInt(value, 10));
+      } else if (value === "") {
+        setQuantity("");
+      }
+    } else if (field === "price") {
+      if (/^-?\d+\.?\d*$/.test(value)) {
+        setConfirmPrice(parseFloat(value));
+      } else if (value === "") {
+        setConfirmPrice("");
+      }
+    }
+  };
+  const closePopup = () => {
+    setConfirmPrice("");
+    setQuantity("");
+    setShowPopup(false);
+  };
+  const onConfirmClick = () => {
+    dispatch({
+      type: "ADD_STOCK",
+      payload: {
+        name,
+        symbol,
+        quantity: quantity === "" ? 1 : parseInt(quantity, 10),
+        price:
+          confirmPrice === "" ? parseFloat(price) : parseFloat(confirmPrice)
+      }
+    });
+    addToast(`Added ${symbol} to your Portfolio!`, { appearance: "success" });
+    setQuantity("");
+    setConfirmPrice("");
+    closePopup();
+  };
   return (
     <div className="details">
       <div className="details__header">
@@ -118,76 +143,20 @@ const StockDetails = ({ name, symbol, details, loading, stockChartData }) => {
               </ReactTooltip>
             </div>
           </div>
-          <div className="chart">
-            <ResponsiveLineCanvas
-              data={[
-                {
-                  id: name,
-                  data: stockChartData
-                }
-              ]}
-              margin={{ top: 50, right: 50, bottom: 50, left: 50 }}
-              enableArea
-              enableGridX={false}
-              enableGridY={false}
-              axisRight={{
-                orient: "right",
-                tickSize: 10,
-                tickPadding: 5,
-                tickRotation: 0,
-                tickValues: 5
-              }}
-              yScale={{ type: "linear" }}
-              xScale={{
-                type: "time",
-                format: "%Y-%m-%d",
-                precision: "day"
-              }}
-              xFormat="time:%Y-%m-%d"
-              enableSlices="x"
-              enableCrosshair={true}
-              enablePoints={false}
-              axisLeft={{
-                orient: "left",
-                tickSize: 10,
-                tickPadding: 5,
-                tickRotation: 0,
-                tickValues: 5
-              }}
-              axisBottom={{
-                format: "%b %d",
-                tickValues: "every 2 months",
-                legend: "time scale",
-                legendOffset: -12
-              }}
-              tooltip={({
-                point: {
-                  data: { x, y }
-                }
-              }) => (
-                <span
-                  style={{
-                    backgroundColor: "white",
-                    padding: "10px",
-                    boxShadow: "5px 5px 5px 0px rgba(0,0,0,0.5)"
-                  }}
-                >
-                  Price on {x.toDateString()} was {y}
-                </span>
-              )}
-            />
-          </div>
+          <BasicStockChart data={stockChartData} id={name} />
           <div className="button-section">
-            <button className="add" onClick={() => setShowPopup(true)}>
+            <Button className="add" onClick={() => setShowPopup(true)}>
               Add to Portfolio!
-            </button>
-            <button className="view">View Portfolio!</button>
+            </Button>
+            <Button className="view" onClick={() => navigate("/portfolio")}>
+              View Portfolio!
+            </Button>
           </div>
           <Modal onCloseClick={closePopup} show={showPopup}>
             <h4>Add to your Portfolio!</h4>
             <div className="form">
               <div>
-                <label for="quantity">Quantity</label>
+                <label htmlFor="quantity">Quantity</label>
                 <input
                   name="quantity"
                   value={quantity}
@@ -196,7 +165,7 @@ const StockDetails = ({ name, symbol, details, loading, stockChartData }) => {
                 />
               </div>
               <div>
-                <label for="price">Buy Price</label>
+                <label htmlFor="price">Buy Price</label>
                 <input
                   name="price"
                   placeholder={price}
@@ -204,9 +173,9 @@ const StockDetails = ({ name, symbol, details, loading, stockChartData }) => {
                   onChange={onInputChange("price")}
                 />
               </div>
-              <button className="confirm" onClick={onConfirmClick}>
+              <Button className="confirm" onClick={onConfirmClick}>
                 Add Stock!
-              </button>
+              </Button>
             </div>
           </Modal>
         </div>

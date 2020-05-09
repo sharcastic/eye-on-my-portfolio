@@ -27,4 +27,11 @@ main {
     color: $color-1;
     font-size: 30px;
   }
+  .goToPortolio {
+    margin-top: 20px;
+    width: 100%;
+    @media screen and (orientation: landscape) {
+      width: 200px;
+    }
+  }
 }

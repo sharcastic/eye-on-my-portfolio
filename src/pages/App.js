@@ -1,13 +1,15 @@
 import React, { useRef, useState, useEffect } from "react";
 import AsyncSelect from "react-select/async";
 import debounce from "debounce-promise";
+import { navigate } from "@reach/router";
 
-import { getStockDetailsAndChart } from "./util/network";
-import { DEBOUNCE_WAIT } from "./constants";
-import stockData from "./stock_data";
-import StockDetailsComponent from "./Components/StockDetails";
+import Button from "../Components/Button";
+import { getStockDetailsAndChart } from "../util/network";
+import { DEBOUNCE_WAIT } from "../constants";
+import stockData from "../stock_data";
+import StockDetailsComponent from "../Components/StockDetails";
 
-import "./styles/App.scss";
+import "../styles/App.scss";
 
 function App() {
   const [selectedStock, setSelectedStock] = useState({});
@@ -52,12 +54,6 @@ function App() {
   };
   return (
     <div className="App">
-      <header>
-        <div className="header-left">
-          <h1>STOCK</h1>
-          <h1>PORTFOLIO</h1>
-        </div>
-      </header>
       <main>
         <AsyncSelect
           cacheOptions
@@ -73,6 +69,14 @@ function App() {
           symbol={selectedStock.symbol}
           stockChartData={stockChartData}
         />
+        {!selectedStock.name && (
+          <Button
+            className="goToPortolio"
+            onClick={() => navigate("/portfolio")}
+          >
+            Check out Portfolio!
+          </Button>
+        )}
       </main>
     </div>
   );

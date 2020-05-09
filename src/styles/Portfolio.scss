@@ -1,0 +1,17 @@
+@import "variables.scss";
+
+.addStocks {
+  margin-top: 20px;
+  width: 100%;
+  @media screen and (orientation: landscape) {
+    width: 200px;
+  }
+}
+
+.pie {
+  height: 300px;
+  margin-top: 30px;
+  @media screen and (orientation: landscape) {
+    height: 400px;
+  }
+}

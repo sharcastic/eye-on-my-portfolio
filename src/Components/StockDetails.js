@@ -57,14 +57,17 @@ const StockDetails = ({ name, symbol, details, loading, stockChartData }) => {
     setShowPopup(false);
   };
   const onConfirmClick = () => {
+    const price =
+      confirmPrice === "" ? parseFloat(price) : parseFloat(confirmPrice);
     dispatch({
       type: "ADD_STOCK",
       payload: {
         name,
         symbol,
         quantity: quantity === "" ? 1 : parseInt(quantity, 10),
-        price:
-          confirmPrice === "" ? parseFloat(price) : parseFloat(confirmPrice)
+        price,
+        addedTime: new Date().getTime(),
+        totalPrice: quantity * price
       }
     });
     addToast(`Added ${symbol} to your Portfolio!`, { appearance: "success" });

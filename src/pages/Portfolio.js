@@ -1,20 +1,43 @@
 import React, { useContext, useEffect, useState } from "react";
 import { navigate } from "@reach/router";
-import { ResponsivePie } from "@nivo/pie";
+import { ResponsiveLine } from "@nivo/line";
 
+import { getMultipleStockData } from "../util/network";
 import Button from "../Components/Button";
 import ApplicationContext from "../context/ApplicationContext";
+import SimplePieChart from "../Components/Charts/BasicPieChart";
 import "../styles/Portfolio.scss";
 
 const Portfolio = () => {
   const { portfolioItems } = useContext(ApplicationContext);
+  const [graphData, setGraphData] = useState([]);
   const [totalValue, setTotal] = useState(0);
   useEffect(() => {
-    setTotal(
-      portfolioItems.reduce(
-        (sum, { quantity, price }) => sum + quantity * price,
-        0
-      )
+    const fetchData = async (arrOfSymbols, timeToGetDataFrom) => {
+      const data = await getMultipleStockData(arrOfSymbols, timeToGetDataFrom);
+      const formattedData = arrOfSymbols.map(symbol => {
+        const { quantity = 0 } = portfolioItems.find(i => i.symbol === symbol);
+        return {
+          id: symbol,
+          data: data[symbol].values.reverse().map(i => ({
+            x: i.datetime,
+            y: i.close * quantity
+          }))
+        };
+      });
+      setGraphData(formattedData);
+    };
+    const [total, lastAddedStockTime] = portfolioItems.reduce(
+      ([sum, minTime], { totalPrice, addedTime }) => [
+        sum + totalPrice,
+        minTime > addedTime ? addedTime : minTime
+      ],
+      [0, Infinity]
+    );
+    setTotal(total);
+    fetchData(
+      portfolioItems.map(i => i.symbol),
+      lastAddedStockTime
     );
   }, [portfolioItems]);
   if (portfolioItems.length === 0) {
@@ -31,22 +54,23 @@ const Portfolio = () => {
     <div>
       <h4>This is the Portfolio page!</h4>
       <div className="pie">
-        <ResponsivePie
-          pixelRatio={2}
-          data={portfolioItems.map(({ symbol, quantity, price }) => ({
-            id: symbol,
-            value: price * quantity,
-            label: symbol
-          }))}
-          enableRadialLabels
-          radialLabelsLinkColor="black"
-          margin={{ top: 50, right: 50, bottom: 50, left: 50 }}
-          // radialLabel={d => `${d.id}: ${d.value}`}
-          sliceLabel={d =>
-            `${parseFloat((d.value / totalValue) * 100).toFixed(2)}%`
-          }
-          tooltip={({ id, value }) => <span>{`${id} -> ${value} Rupees`}</span>}
+        <SimplePieChart
+          portfolioItems={portfolioItems}
+          totalValue={totalValue}
         />
+      </div>
+      <div className="stackedLineChart">
+        {graphData.length === 0 ? (
+          <span>LOADING!</span>
+        ) : (
+          <ResponsiveLine
+            data={graphData}
+            yScale={{
+              type: "linear",
+              min: Math.min(...portfolioItems.map(i => i.totalPrice)) * 0.75
+            }}
+          />
+        )}
       </div>
       <ul>
         {portfolioItems.map(({ symbol, quantity, price }) => (

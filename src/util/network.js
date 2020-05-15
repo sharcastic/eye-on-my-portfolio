@@ -1,21 +1,5 @@
 import { TWELVEDATA_API_KEY, TWELVEDATA_URL } from "../constants";
-
-const getThisAndPreviousDate = () => {
-  const date = new Date();
-  let month = "" + (date.getMonth() + 1);
-  let day = "" + date.getDate();
-  const year = date.getFullYear();
-
-  if (month.length < 2) {
-    month = "0" + month;
-  }
-
-  if (day.length < 2) {
-    day = "0" + day;
-  }
-
-  return [[year - 1, month, day].join("-"), [year, month, day].join("-")];
-};
+import { getTodayAndLastYearsDate, getDateString } from "./commonFunctions";
 
 const getStockDetailsPromise = symbol =>
   fetch(`${TWELVEDATA_URL}/quote?symbol=${symbol}&apikey=${TWELVEDATA_API_KEY}`)
@@ -24,7 +8,7 @@ const getStockDetailsPromise = symbol =>
     .catch(err => ({ error: true, errObj: err }));
 
 const getStockChartDataPromise = symbol => {
-  const [startDate, endDate] = getThisAndPreviousDate();
+  const [startDate, endDate] = getTodayAndLastYearsDate();
   return fetch(
     `${TWELVEDATA_URL}/time_series?symbol=${symbol}&interval=1day&start_date=${startDate}&end_date=${endDate}&exchange=NSE&apikey=${TWELVEDATA_API_KEY}`
   )
@@ -38,5 +22,20 @@ export const getStockDetailsAndChart = symbol => {
   const chartDataPromise = getStockChartDataPromise(symbol);
   return Promise.all([detailsPromise, chartDataPromise])
     .then(([details, chartData]) => ({ details, chartData: chartData.values }))
+    .catch(err => ({ error: true, errObj: err }));
+};
+
+export const getMultipleStockData = (arrOfSymbols, timeToGetDataFrom) => {
+  const arrString = arrOfSymbols.reduce(
+    (acc, symbol) => (acc ? `${acc},${symbol}` : symbol),
+    ""
+  );
+  return fetch(
+    `${TWELVEDATA_URL}/time_series?symbol=${arrString}&interval=1day&start_date=${getDateString(
+      new Date(timeToGetDataFrom)
+    )}&end_date=${getDateString()}&exchange=NSE&apikey=${TWELVEDATA_API_KEY}`
+  )
+    .then(res => res.json())
+    .then(data => data)
     .catch(err => ({ error: true, errObj: err }));
 };
